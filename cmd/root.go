@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 NAME HERE <EMAIL ADDRESS>
+Copyright © 2022 Emiliano Jankowski <ejankowski@gmail.com>
 
 */
 package cmd
@@ -10,21 +10,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-
-
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "livesup-cli",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+	Short: "Simplifies the information you need when you need it.",
+	Long: `We live in the Cloud era, today's applications are about connecting APIs.
+To manage, monitor, control your app, teams and business you probably need to log in into 10
+different services (or more!). It's even harder if you just joined the organization or
+switched to a new team. LiveSup tries to add transparency to the services you use and it
+creates a layer that organizes and simplifies the information you need when you need it.`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -47,5 +41,3 @@ func init() {
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
-
-
