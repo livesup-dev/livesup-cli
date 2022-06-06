@@ -10,9 +10,23 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 
+	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
+
+type ApiResponse struct {
+	Users []User `json:"data"`
+}
+
+type User struct {
+	ID        string
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string
+}
 
 // getCmd represents the get command
 var getCmd = &cobra.Command{
@@ -24,7 +38,13 @@ Examples:
 	# List all users in ps output format
 	livesup-cli get users`,
 	Run: func(cmd *cobra.Command, args []string) {
-		token := ""
+		viper.SetConfigFile(".env") // optionally look for config in the working directory
+		err := viper.ReadInConfig() // Find and read the config file
+		if err != nil {             // Handle errors reading the config file
+			panic(fmt.Errorf("fatal error config file: %w", err))
+		}
+
+		token := viper.GetString("LIVESUP_TOKEN")
 		URL := "http://host.docker.internal:4000/api/users"
 
 		fmt.Println("Reading users")
@@ -49,7 +69,20 @@ Examples:
 				panic(err)
 			}
 
-			fmt.Println(dst.String())
+			var response ApiResponse
+			json.Unmarshal(data, &response)
+
+			t := table.NewWriter()
+			t.SetOutputMirror(os.Stdout)
+			t.AppendHeader(table.Row{"#", "First Name", "Last Name", "Email"})
+
+			for _, user := range response.Users {
+				t.AppendRows([]table.Row{
+					{user.ID, user.FirstName, user.LastName, user.Email},
+				})
+				t.AppendSeparator()
+			}
+			t.Render()
 		} else {
 			fmt.Println(err)
 		}
