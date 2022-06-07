@@ -5,27 +5,19 @@ Copyright © 2022 Emiliano Jankowski <ejankowski@gmail.com>
 package cmd
 
 import (
-	"bytes"
-	"encoding/json"
+	"context"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"os"
 
+	"github.com/carlmjohnson/requests"
 	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/livesup-dev/livesup-cli/internal/api"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 type ApiResponse struct {
-	Users []User `json:"data"`
-}
-
-type User struct {
-	ID        string
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Email     string
+	Users []api.User `json:"data"`
 }
 
 // getCmd represents the get command
@@ -45,47 +37,34 @@ Examples:
 		}
 
 		token := viper.GetString("LIVESUP_TOKEN")
-		URL := "http://host.docker.internal:4000/api/users"
+		URL := "http://host.docker.internal:4000/"
 
 		fmt.Println("Reading users")
 
-		client := &http.Client{}
+		var response ApiResponse
+		err = requests.
+			URL(URL).
+			Pathf("api/users").
+			ContentType("application/json").
+			Bearer(token).
+			ToJSON(&response).
+			Fetch(context.Background())
 
-		// Get the data
-		request, _ := http.NewRequest("GET", URL, nil)
-		request.Header.Set("Content-Type", "application/json")
-		request.Header.Set("Authorization", "Bearer "+token)
-		response, err := client.Do(request)
 		if err != nil {
-			fmt.Println(err)
+			panic(fmt.Errorf("fatal error reading API: %w", err))
 		}
-		defer response.Body.Close()
 
-		if response.StatusCode == 200 {
-			dst := &bytes.Buffer{}
-			data, _ := ioutil.ReadAll(response.Body)
+		t := table.NewWriter()
+		t.SetOutputMirror(os.Stdout)
+		t.AppendHeader(table.Row{"#", "First Name", "Last Name", "Email"})
 
-			if err := json.Indent(dst, data, "", "  "); err != nil {
-				panic(err)
-			}
-
-			var response ApiResponse
-			json.Unmarshal(data, &response)
-
-			t := table.NewWriter()
-			t.SetOutputMirror(os.Stdout)
-			t.AppendHeader(table.Row{"#", "First Name", "Last Name", "Email"})
-
-			for _, user := range response.Users {
-				t.AppendRows([]table.Row{
-					{user.ID, user.FirstName, user.LastName, user.Email},
-				})
-				t.AppendSeparator()
-			}
-			t.Render()
-		} else {
-			fmt.Println(err)
+		for _, user := range response.Users {
+			t.AppendRows([]table.Row{
+				{user.ID, user.FirstName, user.LastName, user.Email},
+			})
+			t.AppendSeparator()
 		}
+		t.Render()
 	},
 }
 
