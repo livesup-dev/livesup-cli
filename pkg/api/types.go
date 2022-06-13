@@ -10,3 +10,11 @@ type User struct {
 	ConfirmedAt string `json:"confirmed_at"`
 	State       string
 }
+
+func (u User) FullName() string {
+	return u.FirstName + " " + u.LastName
+}
+
+type UsersResponse struct {
+	Users []User `json:"data"`
+}
