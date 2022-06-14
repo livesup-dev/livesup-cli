@@ -9,10 +9,23 @@ import (
 func DrawTable(modelTable ModelTable) {
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
-	t.AppendHeader(table.Row{"#", "First Name", "Last Name", "Email"})
+
+	t.AppendHeader(buildRowFromSlice(modelTable.GetHeaders()))
+
 	for _, row := range modelTable.GetRows() {
-		t.AppendRow(table.Row{row})
+		t.AppendRow(buildRowFromSlice(row))
 		t.AppendSeparator()
 	}
 	t.Render()
+}
+
+func buildRowFromSlice(slice []string) table.Row {
+	// Im not so sure yet why we need this
+	// https://github.com/jedib0t/go-pretty/issues/201
+	var row table.Row
+	for _, element := range slice {
+		row = append(row, element)
+	}
+
+	return row
 }
