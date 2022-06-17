@@ -11,7 +11,7 @@ type UserTable struct {
 }
 
 func BuildUserTable(users []api.User) UserTable {
-	rows := buildRows(users)
+	rows := buildUserRows(users)
 	return UserTable{
 		Users:   users,
 		Headers: []string{"#", "First Name", "Last Name", "Email"},
@@ -27,7 +27,7 @@ func (userTable UserTable) GetHeaders() []string {
 	return userTable.Headers
 }
 
-func buildRows(users []api.User) [][]string {
+func buildUserRows(users []api.User) [][]string {
 	rows := [][]string{}
 
 	for _, u := range users {
