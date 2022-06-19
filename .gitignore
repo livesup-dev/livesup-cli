@@ -38,7 +38,7 @@ bin
 .idea/
 *.iml
 
-.devcontainer
+# .devcontainer
 .env
 .env_dev
 .env_prod
