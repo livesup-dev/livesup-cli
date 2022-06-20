@@ -6,7 +6,7 @@ package main
 
 import (
 	"github.com/livesup-dev/livesup-cli/cmd"
-	"github.com/livesup-dev/livesup-cli/pkg/config"
+	"github.com/livesup-dev/livesup-cli/internal/config"
 )
 
 func main() {

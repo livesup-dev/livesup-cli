@@ -7,8 +7,8 @@ package cmd
 import (
 	"errors"
 
-	"github.com/livesup-dev/livesup-cli/pkg/api"
-	"github.com/livesup-dev/livesup-cli/pkg/ui"
+	"github.com/livesup-dev/livesup-cli/internal/api"
+	"github.com/livesup-dev/livesup-cli/internal/ui"
 	"github.com/spf13/cobra"
 )
 
