@@ -1,7 +1,7 @@
 package ui
 
 import (
-	"github.com/livesup-dev/livesup-cli/pkg/api"
+	"github.com/livesup-dev/livesup-cli/internal/api"
 )
 
 type TeamTable struct {

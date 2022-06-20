@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/carlmjohnson/requests"
-	"github.com/livesup-dev/livesup-cli/pkg/config"
+	"github.com/livesup-dev/livesup-cli/internal/config"
 )
 
 type User struct {
