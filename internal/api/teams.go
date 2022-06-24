@@ -22,23 +22,31 @@ type TeamsResponse struct {
 	Teams []Team `json:"data"`
 }
 
+type ApiResponse = interface{}
+
 // TODO: Is there any way to not repeat
 // the body of all these functions and do
 // something like apiGet("api/users", &response)?
 func GetAllTeams() TeamsResponse {
-	var response TeamsResponse
+	var response TeamsResponse // = &TeamsResponse{}
+	// data, ok = getResponse(response).(*TeamsResponse)
+
+	return getResponse(response).(TeamsResponse)
+}
+
+func getResponse(apiResponse ApiResponse) ApiResponse {
 	err := requests.
 		URL(config.URL()).
 		Pathf("api/teams").
 		ContentType("application/json").
 		Bearer(config.Token()).
-		ToJSON(&response).
+		ToJSON(&apiResponse).
 		Fetch(context.Background())
 
 	if err != nil {
 		panic(fmt.Errorf("fatal error reading API: %w", err))
 	}
-	return response
+	return apiResponse
 }
 
 func UpdateTeam(team Team) Team {
