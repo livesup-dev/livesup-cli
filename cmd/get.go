@@ -6,8 +6,9 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 
-	"github.com/livesup-dev/livesup-cli/internal/api"
+	"github.com/livesup-dev/livesup-cli/internal/api/services"
 	"github.com/livesup-dev/livesup-cli/internal/ui"
 	"github.com/spf13/cobra"
 )
@@ -28,18 +29,16 @@ Examples:
 
 		resource := args[0]
 
-		var resourceTable ui.ModelTable
-
 		switch resource {
 		case "users":
-			resourceTable = getUsersTable()
+			response := services.GetAllUsers()
+			ui.RenderUserTable(response.Users)
 		case "teams":
-			resourceTable = getTeamsTable()
+			response := services.GetAllTeams()
+			ui.RenderTeamTable(response.Teams)
 		default:
-			return errors.New("the resource does not exists")
+			return fmt.Errorf("the <%s> resource is not supported", resource)
 		}
-
-		ui.DrawTable(resourceTable)
 
 		return nil
 	},
@@ -57,14 +56,4 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// getCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-}
-
-func getUsersTable() ui.ModelTable {
-	response := api.GetAllUsers()
-	return ui.BuildUserTable(response.Users)
-}
-
-func getTeamsTable() ui.ModelTable {
-	response := api.GetAllTeams()
-	return ui.BuildTeamTable(response.Teams)
 }

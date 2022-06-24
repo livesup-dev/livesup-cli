@@ -8,7 +8,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/livesup-dev/livesup-cli/internal/api"
+	"github.com/livesup-dev/livesup-cli/internal/api/models"
+	"github.com/livesup-dev/livesup-cli/internal/api/services"
+	"github.com/livesup-dev/livesup-cli/internal/ui"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -28,11 +30,14 @@ to quickly create a Cobra application.`,
 			return errors.New("the resource id is required")
 		}
 
-		fmt.Println(args)
+		resource := args[0]
 
-		switch args[0] {
-		case "user":
-			api.UpdateTeam(buildTeam(args[1], cmd.Flags()))
+		switch resource {
+		case "team":
+			team := services.UpdateTeam(buildTeam(args[1], cmd.Flags()))
+			ui.RenderTeamTable([]models.Team{team})
+		default:
+			return fmt.Errorf("resource <%s> not found", resource)
 		}
 
 		return nil
@@ -45,20 +50,10 @@ func init() {
 	updateCmd.PersistentFlags().StringP("name", "n", "", "Team name")
 	updateCmd.PersistentFlags().StringP("description", "d", "", "Team description")
 	updateCmd.PersistentFlags().StringP("avatar_url", "a", "", "Possible values: https://someavatar.com/image.png")
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// updateCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// updateCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func buildTeam(id string, flags *pflag.FlagSet) api.Team {
-	var team api.Team
+func buildTeam(id string, flags *pflag.FlagSet) models.Team {
+	var team models.Team
 
 	team.ID = id
 	team.Name, _ = flags.GetString("name")
