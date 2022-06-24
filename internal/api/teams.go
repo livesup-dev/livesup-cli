@@ -31,7 +31,7 @@ func GetAllTeams() TeamsResponse {
 	var response TeamsResponse // = &TeamsResponse{}
 	// data, ok = getResponse(response).(*TeamsResponse)
 
-	return getResponse(response).(TeamsResponse)
+	return getResponse(&response).(TeamsResponse)
 }
 
 func getResponse(apiResponse ApiResponse) ApiResponse {
@@ -42,6 +42,8 @@ func getResponse(apiResponse ApiResponse) ApiResponse {
 		Bearer(config.Token()).
 		ToJSON(&apiResponse).
 		Fetch(context.Background())
+
+	fmt.Printf(fmt.Sprintf("%T", apiResponse))
 
 	if err != nil {
 		panic(fmt.Errorf("fatal error reading API: %w", err))
