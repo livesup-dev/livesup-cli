@@ -1,22 +1,25 @@
 package ui
 
-import (
-	"github.com/livesup-dev/livesup-cli/internal/api"
-)
+import "github.com/livesup-dev/livesup-cli/internal/api/models"
 
 type TeamTable struct {
 	Rows    [][]string
 	Headers []string
-	Teams   []api.Team
+	Teams   []models.Team
 }
 
-func BuildTeamTable(teams []api.Team) TeamTable {
+func buildTeamTable(teams []models.Team) TeamTable {
 	rows := buildTeamRows(teams)
 	return TeamTable{
 		Teams:   teams,
-		Headers: []string{"#", "Name", "Inserted At"},
+		Headers: []string{"#", "Name", "Slug", "Description", "Inserted At", "Updated At"},
 		Rows:    rows,
 	}
+}
+
+func RenderTeamTable(teams []models.Team) {
+	teamTable := buildTeamTable(teams)
+	DrawTable(teamTable)
 }
 
 func (teamTable TeamTable) GetRows() [][]string {
@@ -27,11 +30,11 @@ func (teamTable TeamTable) GetHeaders() []string {
 	return teamTable.Headers
 }
 
-func buildTeamRows(teams []api.Team) [][]string {
+func buildTeamRows(teams []models.Team) [][]string {
 	rows := [][]string{}
 
 	for _, t := range teams {
-		rows = append(rows, []string{t.ID, t.Name, t.InsertedAt})
+		rows = append(rows, []string{t.ID, t.Name, t.Slug, t.Description, t.InsertedAt, t.UpdatedAt})
 	}
 
 	return rows

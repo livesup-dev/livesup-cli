@@ -1,22 +1,25 @@
 package ui
 
-import (
-	"github.com/livesup-dev/livesup-cli/internal/api"
-)
+import "github.com/livesup-dev/livesup-cli/internal/api/models"
 
 type UserTable struct {
 	Rows    [][]string
 	Headers []string
-	Users   []api.User
+	Users   []models.User
 }
 
-func BuildUserTable(users []api.User) UserTable {
+func buildUserTable(users []models.User) UserTable {
 	rows := buildUserRows(users)
 	return UserTable{
 		Users:   users,
 		Headers: []string{"#", "First Name", "Last Name", "Email"},
 		Rows:    rows,
 	}
+}
+
+func RenderUserTable(users []models.User) {
+	userTable := buildUserTable(users)
+	DrawTable(userTable)
 }
 
 func (userTable UserTable) GetRows() [][]string {
@@ -27,7 +30,7 @@ func (userTable UserTable) GetHeaders() []string {
 	return userTable.Headers
 }
 
-func buildUserRows(users []api.User) [][]string {
+func buildUserRows(users []models.User) [][]string {
 	rows := [][]string{}
 
 	for _, u := range users {
