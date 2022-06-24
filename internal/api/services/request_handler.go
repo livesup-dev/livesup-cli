@@ -9,20 +9,20 @@ import (
 	"github.com/livesup-dev/livesup-cli/internal/config"
 )
 
-const content_type = "application/json"
+const contentType = "application/json"
 
 // Alias
 type ApiResponse = interface{}
 
 type Single interface {
-	GetModel() models.Model
+	GetModel() *models.Model
 }
 
 func doGet(apiResponse ApiResponse, path string) ApiResponse {
 	err := requests.
 		URL(config.URL()).
 		Pathf(buildApiPath(path)).
-		ContentType(content_type).
+		ContentType(contentType).
 		Bearer(config.Token()).
 		ToJSON(&apiResponse).
 		Fetch(context.Background())
@@ -33,27 +33,42 @@ func doGet(apiResponse ApiResponse, path string) ApiResponse {
 	return apiResponse
 }
 
-func doUpdate(model models.Model) Single {
-	teamBody := make(map[string]models.Model)
-	teamBody["team"] = model
-	teamSingle := TeamSingle{}
+func doUpdate(model models.Model, path string) Single {
+	// TODO: Im not proud of these lines
+	var modelName string
+	var singleInterface interface{}
+
+	switch model.(type) {
+	case *models.Team:
+		modelName = "team"
+		singleInterface = &TeamSingle{}
+	case *models.User:
+		modelName = "user"
+		singleInterface = &UserSingle{}
+	}
+	body := make(map[string]models.Model)
+	body[modelName] = model
 
 	err := requests.
 		URL(config.URL()).
-		Pathf("api/teams/%s", model.GetID()).
+		Pathf(buildApiPathWithId(path, model.GetID())).
 		Put().
-		BodyJSON(&teamBody).
-		ContentType("application/json").
+		BodyJSON(&body).
+		ContentType(contentType).
 		Bearer(config.Token()).
-		ToJSON(&teamSingle).
+		ToJSON(&singleInterface).
 		Fetch(context.Background())
 
 	if err != nil {
 		panic(fmt.Errorf("fatal error reading API: %w", err))
 	}
-	return teamSingle
+	return singleInterface
 }
 
 func buildApiPath(path string) string {
 	return "api/" + path
+}
+
+func buildApiPathWithId(path string, id string) string {
+	return buildApiPath(fmt.Sprintf("%s/%s", path, id))
 }

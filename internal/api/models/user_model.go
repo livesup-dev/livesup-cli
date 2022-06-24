@@ -13,10 +13,10 @@ type User struct {
 	UpdatedAt   string `json:"updated_at"`
 }
 
-func (user User) FullName() string {
+func (user *User) FullName() string {
 	return user.FirstName + " " + user.LastName
 }
 
-func (user User) GetID() string {
+func (user *User) GetID() string {
 	return user.ID
 }

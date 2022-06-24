@@ -10,6 +10,6 @@ type Team struct {
 	UpdatedAt   string `json:"updated_at,omitempty"`
 }
 
-func (team Team) GetID() string {
+func (team *Team) GetID() string {
 	return team.ID
 }
