@@ -1,6 +1,7 @@
 package services
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -47,6 +48,19 @@ func doGet(apiResponse ApiResponse, path string) ApiResponse {
 	return apiResponse
 }
 
+func doUpdate(body *map[string]models.Model, target interface{}, id string, path string) *interface{} {
+	path = buildApiPathWithId(path, id)
+	req := newRequestWithBody(http.MethodPut, buildApiPath(path), body)
+
+	resp, err := Client.Do(req)
+
+	panicOnError(err)
+
+	buildResponse(resp.Body, &target)
+
+	return &target
+}
+
 func panicOnError(err error) {
 	if err != nil {
 		panic(fmt.Errorf("fail to perform the request: %w", err))
@@ -54,27 +68,42 @@ func panicOnError(err error) {
 }
 
 func newRequest(method, path string) *http.Request {
-	req, err := http.NewRequest("GET", buildApiPath(path), nil)
+	req, err := http.NewRequest(method, buildApiPath(path), nil)
 
 	panicOnError(err)
 
-	req.Header.Add("ContentType", contentType)
-	req.Header.Add("Accept", `application/json`)
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", config.Token()))
+	addHeaders(req)
 
 	return req
+}
+
+func newRequestWithBody(method, path string, body interface{}) *http.Request {
+	jsonBytes, err := json.Marshal(body)
+	// fmt.Println(string(jsonBytes))
+	panicOnError(err)
+
+	req, err := http.NewRequest(method, path, bytes.NewBuffer(jsonBytes))
+
+	addHeaders(req)
+
+	panicOnError(err)
+
+	return req
+}
+
+func addHeaders(req *http.Request) {
+	req.Header.Add("Content-Type", contentType)
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", config.Token()))
 }
 
 func buildResponse(body io.ReadCloser, target *interface{}) *interface{} {
 	defer body.Close()
 
 	fullBody, err := ioutil.ReadAll(body)
-
+	// fmt.Println(fullBody)
 	panicOnError(err)
 
 	err = json.Unmarshal(fullBody, target)
-
-	panicOnError(err)
 
 	if err != nil { // Parse []byte to go struct pointer
 		fmt.Printf("Can not unmarshal JSON: %T\n%s\n%#v\n", err, err, err)
@@ -88,5 +117,5 @@ func buildApiPath(path string) string {
 }
 
 func buildApiPathWithId(path string, id string) string {
-	return buildApiPath(fmt.Sprintf("%s/%s", path, id))
+	return fmt.Sprintf("%s/%s", path, id)
 }

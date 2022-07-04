@@ -46,7 +46,7 @@ func (*userService) Update(user *models.User) (*models.User, error) {
 	// duplicated code?
 	err := requests.
 		URL(config.URL()).
-		Pathf(buildApiPathWithId(teamsPath, user.GetID())).
+		Pathf(buildApiPathWithId(users_path, user.GetID())).
 		Put().
 		BodyJSON(&body).
 		ContentType(contentType).

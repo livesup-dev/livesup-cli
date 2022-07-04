@@ -33,7 +33,7 @@ var updateTeamCmd = &cobra.Command{
 	Short: "Update a team",
 	Long:  "",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		team, err := services.NewTeamService().Update(buildTeam(args[1], cmd.Flags()))
+		team, err := services.NewTeamService().Update(buildTeam(args[0], cmd.Flags()))
 		if err != nil {
 			return err
 		}
@@ -50,7 +50,7 @@ var updateUserCmd = &cobra.Command{
 	Short: "Update a user",
 	Long:  "",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		user, err := services.NewUserService().Update(buildUser(args[1], cmd.Flags()))
+		user, err := services.NewUserService().Update(buildUser(args[0], cmd.Flags()))
 		if err != nil {
 			return err
 		}
