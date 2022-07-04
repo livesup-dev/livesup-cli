@@ -24,6 +24,9 @@ type HttpClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
+// TODO: Im not really proud of making this var public
+// this is a way to have dependency injection so I can test
+// this package
 var (
 	Client HttpClient
 )
