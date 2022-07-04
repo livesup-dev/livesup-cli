@@ -1,7 +1,12 @@
 package services
 
 import (
+	"context"
+	"fmt"
+
+	"github.com/carlmjohnson/requests"
 	"github.com/livesup-dev/livesup-cli/internal/api/models"
+	"github.com/livesup-dev/livesup-cli/internal/config"
 )
 
 const teamsPath = "/teams"
@@ -21,6 +26,7 @@ type TeamList struct {
 func NewTeamService() TeamService {
 	return &teamService{}
 }
+
 func (*teamService) All() (*TeamList, error) {
 	// TODO: errors not implemented
 	return doGet(&TeamList{}, teamsPath).(*TeamList), nil
@@ -35,6 +41,24 @@ func (teamSingle *TeamSingle) GetModel() models.Model {
 }
 
 func (*teamService) Update(team *models.Team) (*models.Team, error) {
-	// TODO: missing error handler
-	return doUpdate(team, teamsPath).GetModel().(*models.Team), nil
+	body := make(map[string]models.Model)
+	body["team"] = team
+
+	// TODO: How do I actually get rid of all these
+	// duplicated code?
+	err := requests.
+		URL(config.URL()).
+		Pathf(buildApiPathWithId(teamsPath, team.GetID())).
+		Put().
+		BodyJSON(&body).
+		ContentType(contentType).
+		Bearer(config.Token()).
+		ToJSON(&team).
+		Fetch(context.Background())
+
+	if err != nil {
+		panic(fmt.Errorf("fatal error reading API: %w", err))
+	}
+
+	return team, err
 }
