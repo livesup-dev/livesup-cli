@@ -3,6 +3,7 @@ package services
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 
@@ -32,34 +33,51 @@ func init() {
 }
 
 func doGet(apiResponse ApiResponse, path string) ApiResponse {
+	req := newRequest(http.MethodGet, path)
+
+	resp, err := Client.Do(req)
+
+	panicOnError(err)
+
+	buildResponse(resp.Body, &apiResponse)
+
+	return apiResponse
+}
+
+func panicOnError(err error) {
+	if err != nil {
+		panic(fmt.Errorf("fail to perform the request: %w", err))
+	}
+}
+
+func newRequest(method, path string) *http.Request {
 	req, err := http.NewRequest("GET", buildApiPath(path), nil)
 
-	if err != nil {
-		fmt.Printf("Fail to perform the request: %s", err)
-		return nil
-	}
+	panicOnError(err)
 
 	req.Header.Add("ContentType", contentType)
 	req.Header.Add("Accept", `application/json`)
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", config.Token()))
-	resp, err := Client.Do(req)
-	if err != nil {
-		fmt.Printf("Fail to get the data: %s", err)
-		return nil
-	}
-	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	return req
+}
 
-	if err != nil {
-		fmt.Printf("%T\n%s\n%#v\n", err, err, err)
-	}
+func buildResponse(body io.ReadCloser, target *interface{}) *interface{} {
+	defer body.Close()
 
-	if err := json.Unmarshal(body, &apiResponse); err != nil { // Parse []byte to go struct pointer
+	fullBody, err := ioutil.ReadAll(body)
+
+	panicOnError(err)
+
+	err = json.Unmarshal(fullBody, target)
+
+	panicOnError(err)
+
+	if err != nil { // Parse []byte to go struct pointer
 		fmt.Printf("Can not unmarshal JSON: %T\n%s\n%#v\n", err, err, err)
 	}
 
-	return apiResponse
+	return target
 }
 
 func buildApiPath(path string) string {
