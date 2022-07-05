@@ -3,11 +3,13 @@ package services_test
 //https://stackoverflow.com/questions/19998250/proper-package-naming-for-testing-with-the-go-language
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"net/http"
 	"testing"
 
+	"github.com/livesup-dev/livesup-cli/internal/api/models"
 	"github.com/livesup-dev/livesup-cli/internal/api/services"
 	"github.com/livesup-dev/livesup-cli/internal/utils/mocks"
 	"github.com/stretchr/testify/assert"
@@ -51,5 +53,32 @@ func TestTeamService(t *testing.T) {
 
 		assert.Nil(t, err)
 		assert.Equal(t, len(teamList.Teams), 2)
+	})
+
+	t.Run("update", func(t *testing.T) {
+		team := &models.Team{
+			ID:          "d61f5ae8-5cf3-4290-9c4a-dae8ed91eb60",
+			Description: "New desc",
+		}
+		jsonBytes, _ := json.Marshal(team)
+
+		r := ioutil.NopCloser(bytes.NewReader([]byte(jsonBytes)))
+
+		mocks.GetDoFunc = func(*http.Request) (*http.Response, error) {
+			return &http.Response{
+				StatusCode: 200,
+				Body:       r,
+			}, nil
+		}
+
+		services.Client = &mocks.MockClient{}
+
+		service := services.NewTeamService()
+
+		updatedTeam, err := service.Update(team)
+
+		assert.Nil(t, err)
+		assert.Equal(t, updatedTeam.Description, "New desc")
+		assert.Equal(t, team.Description, "New desc")
 	})
 }
