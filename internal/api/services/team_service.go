@@ -10,6 +10,7 @@ type TeamService interface {
 	// Create(team *models.Team) (*models.Team, error)
 	All() (*TeamList, error)
 	Update(team *models.Team) (*models.Team, error)
+	Create(team *models.Team) (*models.Team, error)
 }
 
 type teamService struct{}
@@ -39,6 +40,15 @@ func (*teamService) Update(team *models.Team) (*models.Team, error) {
 	body["team"] = team
 
 	doUpdate(&body, &TeamSingle{}, team.GetID(), teamsPath)
+
+	return team, nil
+}
+
+func (*teamService) Create(team *models.Team) (*models.Team, error) {
+	body := make(map[string]models.Model)
+	body["team"] = team
+
+	doPost(&body, &TeamSingle{}, teamsPath)
 
 	return team, nil
 }

@@ -48,9 +48,22 @@ func doGet(apiResponse ApiResponse, path string) ApiResponse {
 	return apiResponse
 }
 
+// TODO: can't we use generics to deal with the "target" param?
 func doUpdate(body *map[string]models.Model, target interface{}, id string, path string) *interface{} {
 	path = buildApiPathWithId(path, id)
 	req := newRequestWithBody(http.MethodPut, buildApiPath(path), body)
+
+	resp, err := Client.Do(req)
+
+	panicOnError(err)
+
+	buildResponse(resp.Body, &target)
+
+	return &target
+}
+
+func doPost(body *map[string]models.Model, target interface{}, path string) *interface{} {
+	req := newRequestWithBody(http.MethodPost, buildApiPath(path), body)
 
 	resp, err := Client.Do(req)
 

@@ -1,19 +1,15 @@
 package services
 
 import (
-	"context"
-	"fmt"
-
-	"github.com/carlmjohnson/requests"
 	"github.com/livesup-dev/livesup-cli/internal/api/models"
-	"github.com/livesup-dev/livesup-cli/internal/config"
 )
 
-const users_path = "/users"
+const usersPath = "/users"
 
 type UserService interface {
 	All() (*UserList, error)
 	Update(user *models.User) (*models.User, error)
+	Create(user *models.User) (*models.User, error)
 }
 
 type userService struct{}
@@ -35,28 +31,23 @@ func (userSingle *UserSingle) GetModel() models.Model {
 }
 
 func (*userService) All() (*UserList, error) {
-	return doGet(&UserList{}, users_path).(*UserList), nil
+	return doGet(&UserList{}, usersPath).(*UserList), nil
 }
 
 func (*userService) Update(user *models.User) (*models.User, error) {
 	body := make(map[string]models.Model)
 	body["user"] = user
 
-	// TODO: How do I actually get rid of all these
-	// duplicated code?
-	err := requests.
-		URL(config.URL()).
-		Pathf(buildApiPathWithId(users_path, user.GetID())).
-		Put().
-		BodyJSON(&body).
-		ContentType(contentType).
-		Bearer(config.Token()).
-		ToJSON(&user).
-		Fetch(context.Background())
+	doUpdate(&body, &UserSingle{}, user.GetID(), usersPath)
 
-	if err != nil {
-		panic(fmt.Errorf("fatal error reading API: %w", err))
-	}
+	return user, nil
+}
 
-	return user, err
+func (*userService) Create(user *models.User) (*models.User, error) {
+	body := make(map[string]models.Model)
+	body["user"] = user
+
+	doPost(&body, &UserSingle{}, usersPath)
+
+	return user, nil
 }

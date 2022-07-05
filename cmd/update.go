@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 NAME HERE <EMAIL ADDRESS>
+Copyright © 2022 Emiliano Jankowski
 
 */
 package cmd
@@ -16,12 +16,11 @@ import (
 var updateCmd = &cobra.Command{
 	Use:   "update <resource> <resource-id>",
 	Short: "Update a resource",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Long: `Update a resource:
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Examples:
+		# Update a team
+		livesup-cli update team d61f5ae8-5cf3-4290-9c4a-dae8ed91eb60 -d="new description"`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return nil
 	},
