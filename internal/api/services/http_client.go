@@ -70,6 +70,10 @@ func doUpdate(body *map[string]models.Model, target interface{}, id string, path
 
 	panicOnError(err)
 
+	// fmt.Println(resp.StatusCode)
+	// b, _ := ioutil.ReadAll(resp.Body)
+	// fmt.Println(string(b))
+
 	// TODO: Create a function to handle the http respose
 	if resp.StatusCode == http.StatusInternalServerError {
 		return nil, errors.New("internal server error")

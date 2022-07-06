@@ -44,9 +44,13 @@ func (*teamService) Update(team *models.Team) (*models.Team, error) {
 	body := make(map[string]models.Model)
 	body["team"] = team
 
-	doUpdate(&body, &TeamSingle{}, team.GetID(), teamsPath)
+	updatedTeam, err := doUpdate(&body, &TeamSingle{}, team.GetID(), teamsPath)
 
-	return team, nil
+	if err != nil {
+		return nil, err
+	}
+
+	return (*updatedTeam).(*TeamSingle).Team, err
 }
 
 func (*teamService) Create(team *models.Team) (*models.Team, error) {

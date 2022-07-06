@@ -3,7 +3,6 @@ package services_test
 //https://stackoverflow.com/questions/19998250/proper-package-naming-for-testing-with-the-go-language
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"net/http"
@@ -56,13 +55,8 @@ func TestTeamService(t *testing.T) {
 	})
 
 	t.Run("update", func(t *testing.T) {
-		team := &models.Team{
-			ID:          "d61f5ae8-5cf3-4290-9c4a-dae8ed91eb60",
-			Description: "New desc",
-		}
-		jsonBytes, _ := json.Marshal(team)
-
-		r := ioutil.NopCloser(bytes.NewReader([]byte(jsonBytes)))
+		json := `{"data":{"avatar_url":"https://pythiabot.s3.amazonaws.com/teams/customer-portal.png","description":"New desc","id":"d61f5ae8-5cf3-4290-9c4a-dae8ed91eb60","inserted_at":"2022-06-15T10:46:49","name":"aaa","slug":"customer-portal","updated_at":"2022-07-04T23:19:33"}}`
+		r := ioutil.NopCloser(bytes.NewReader([]byte(json)))
 
 		mocks.GetDoFunc = func(*http.Request) (*http.Response, error) {
 			return &http.Response{
@@ -75,10 +69,13 @@ func TestTeamService(t *testing.T) {
 
 		service := services.NewTeamService()
 
+		team := &models.Team{
+			ID:          "d61f5ae8-5cf3-4290-9c4a-dae8ed91eb60",
+			Description: "New desc",
+		}
 		updatedTeam, err := service.Update(team)
 
 		assert.Nil(t, err)
 		assert.Equal(t, updatedTeam.Description, "New desc")
-		assert.Equal(t, team.Description, "New desc")
 	})
 }

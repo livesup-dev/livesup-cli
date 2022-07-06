@@ -44,16 +44,24 @@ func (*userService) Update(user *models.User) (*models.User, error) {
 	body := make(map[string]models.Model)
 	body["user"] = user
 
-	doUpdate(&body, &UserSingle{}, user.GetID(), usersPath)
+	updatedUser, err := doUpdate(&body, &UserSingle{}, user.GetID(), usersPath)
 
-	return user, nil
+	if err != nil {
+		return nil, err
+	}
+
+	return (*updatedUser).(*UserSingle).User, err
 }
 
 func (*userService) Create(user *models.User) (*models.User, error) {
 	body := make(map[string]models.Model)
 	body["user"] = user
 
-	doPost(&body, &UserSingle{}, usersPath)
+	newUser, err := doPost(&body, &UserSingle{}, usersPath)
 
-	return user, nil
+	if err != nil {
+		return nil, err
+	}
+
+	return (*newUser).(*UserSingle).User, err
 }
