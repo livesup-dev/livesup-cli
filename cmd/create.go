@@ -63,16 +63,11 @@ var createUserCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(createCmd)
 
-	// Create a function to add the flags on both commands create and update
-	createTeamCmd.PersistentFlags().StringP("name", "n", "", "Team name")
-	createTeamCmd.PersistentFlags().StringP("description", "d", "", "Team description")
-	createTeamCmd.PersistentFlags().StringP("avatar_url", "a", "", "Possible values: https://someavatar.com/image.png")
+	addTeamFlags(createTeamCmd)
 
 	createCmd.AddCommand(createTeamCmd)
 
-	createUserCmd.PersistentFlags().String("first_name", "", "First name")
-	createUserCmd.PersistentFlags().String("last_name", "", "Last name")
-	createUserCmd.PersistentFlags().String("email", "", "Email")
+	addUserFlags(createTeamCmd)
 
 	createCmd.AddCommand(createUserCmd)
 }

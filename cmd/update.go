@@ -63,15 +63,11 @@ var updateUserCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(updateCmd)
 
-	updateTeamCmd.PersistentFlags().StringP("name", "n", "", "Team name")
-	updateTeamCmd.PersistentFlags().StringP("description", "d", "", "Team description")
-	updateTeamCmd.PersistentFlags().StringP("avatar_url", "a", "", "Possible values: https://someavatar.com/image.png")
+	addTeamFlags(updateTeamCmd)
 
 	updateCmd.AddCommand(updateTeamCmd)
 
-	updateUserCmd.PersistentFlags().String("first_name", "", "First name")
-	updateUserCmd.PersistentFlags().String("last_name", "", "Last name")
-	updateUserCmd.PersistentFlags().String("email", "", "Email")
+	addUserFlags(updateUserCmd)
 
 	updateCmd.AddCommand(updateUserCmd)
 }
