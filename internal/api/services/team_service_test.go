@@ -31,7 +31,10 @@ func TestTeamService(t *testing.T) {
 
 		service := services.NewTeamService()
 
-		assert.Panics(t, func() { service.All() }, "Error from web server")
+		assert.Panics(t, func() {
+			data, _ := service.All()
+			assert.Nil(t, data)
+		}, "Error from web server")
 	})
 
 	t.Run("all", func(t *testing.T) {
