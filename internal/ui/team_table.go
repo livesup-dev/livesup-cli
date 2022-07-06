@@ -12,7 +12,7 @@ func buildTeamTable(teams []models.Team) TeamTable {
 	rows := buildTeamRows(teams)
 	return TeamTable{
 		Teams:   teams,
-		Headers: []string{"#", "Name", "Slug", "Description", "Inserted At", "Updated At"},
+		Headers: []string{"#", "Name", "Slug", "Description", "Updated At"},
 		Rows:    rows,
 	}
 }
@@ -34,7 +34,7 @@ func buildTeamRows(teams []models.Team) [][]string {
 	rows := [][]string{}
 
 	for _, t := range teams {
-		rows = append(rows, []string{t.ID, t.Name, t.Slug, t.Description, t.InsertedAt, t.UpdatedAt})
+		rows = append(rows, []string{t.ID, t.Name, t.Slug, t.Description, t.UpdatedAt})
 	}
 
 	return rows

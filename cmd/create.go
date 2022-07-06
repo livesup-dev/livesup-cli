@@ -12,27 +12,27 @@ import (
 	"github.com/spf13/pflag"
 )
 
-// updateCmd represents the update command
-var updateCmd = &cobra.Command{
-	Use:   "update <resource> <resource-id>",
-	Short: "Update a resource",
-	Long: `Update a resource:
+// createCmd represents the update command
+var createCmd = &cobra.Command{
+	Use:   "create <resource>",
+	Short: "Create a resource",
+	Long: `Create a resource:
 
 	Examples:
-		# Update a team
-		livesup-cli update team d61f5ae8-5cf3-4290-9c4a-dae8ed91eb60 -d="new description"`,
+		# create a team
+		livesup-cli create team -n="My cool team"`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return nil
 	},
 }
 
 // updateCmd represents the update command
-var updateTeamCmd = &cobra.Command{
-	Use:   "team <team-id>",
-	Short: "Update a team",
+var createTeamCmd = &cobra.Command{
+	Use:   "team",
+	Short: "Create a team",
 	Long:  "",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		team, err := services.NewTeamService().Update(buildTeam(args[0], cmd.Flags()))
+		team, err := services.NewTeamService().Create(buildNewTeam(cmd.Flags()))
 		if err != nil {
 			return err
 		}
@@ -44,12 +44,12 @@ var updateTeamCmd = &cobra.Command{
 }
 
 // updateCmd represents the update command
-var updateUserCmd = &cobra.Command{
-	Use:   "user <user-id>",
-	Short: "Update a user",
+var createUserCmd = &cobra.Command{
+	Use:   "user",
+	Short: "Create a user",
 	Long:  "",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		user, err := services.NewUserService().Update(buildUser(args[0], cmd.Flags()))
+		user, err := services.NewUserService().Create(buildNewUser(cmd.Flags()))
 		if err != nil {
 			return err
 		}
@@ -61,31 +61,29 @@ var updateUserCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(updateCmd)
+	rootCmd.AddCommand(createCmd)
 
-	addTeamFlags(updateTeamCmd)
+	addTeamFlags(createTeamCmd)
 
-	updateCmd.AddCommand(updateTeamCmd)
+	createCmd.AddCommand(createTeamCmd)
 
-	addUserFlags(updateUserCmd)
+	addUserFlags(createTeamCmd)
 
-	updateCmd.AddCommand(updateUserCmd)
+	createCmd.AddCommand(createUserCmd)
 }
 
-func buildTeam(id string, flags *pflag.FlagSet) *models.Team {
+func buildNewTeam(flags *pflag.FlagSet) *models.Team {
 	var team models.Team
 
-	team.ID = id
 	team.Name, _ = flags.GetString("name")
 	team.Description, _ = flags.GetString("description")
 	team.AvatarUrl, _ = flags.GetString("avatar_url")
 	return &team
 }
 
-func buildUser(id string, flags *pflag.FlagSet) *models.User {
+func buildNewUser(flags *pflag.FlagSet) *models.User {
 	var user models.User
 
-	user.ID = id
 	user.FirstName, _ = flags.GetString("first_name")
 	user.LastName, _ = flags.GetString("last_name")
 	user.Email, _ = flags.GetString("email")

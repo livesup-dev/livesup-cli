@@ -1,7 +1,7 @@
 package models
 
 type Team struct {
-	ID          string
+	ID          string `json:"id"`
 	Name        string `json:"name,omitempty"`
 	Slug        string `json:"slug,omitempty"`
 	Description string `json:"description,omitempty"`
@@ -10,6 +10,6 @@ type Team struct {
 	UpdatedAt   string `json:"updated_at,omitempty"`
 }
 
-func (team Team) GetID() string {
+func (team *Team) GetID() string {
 	return team.ID
 }
