@@ -7,6 +7,7 @@ package cmd
 import (
 	"os"
 
+	cc "github.com/ivanpirog/coloredcobra"
 	"github.com/spf13/cobra"
 )
 
@@ -39,5 +40,13 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
+	cc.Init(&cc.Config{
+		RootCmd:  rootCmd,
+		Headings: cc.HiCyan + cc.Bold + cc.Underline,
+		Commands: cc.HiYellow + cc.Bold,
+		Example:  cc.Italic,
+		ExecName: cc.Bold,
+		Flags:    cc.Bold,
+	})
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

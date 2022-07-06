@@ -11,10 +11,13 @@ func DrawTable(modelTable ModelTable) {
 	t.SetOutputMirror(os.Stdout)
 
 	t.AppendHeader(buildRowFromSlice(modelTable.GetHeaders()))
+	t.SetStyle(table.StyleLight)
+	// t.SetColumnConfigs([]table.ColumnConfig{
+	// 	{Name: "#", WidthMax: 20, WidthMaxEnforcer: text.WrapSoft},
+	// })
 
 	for _, row := range modelTable.GetRows() {
 		t.AppendRow(buildRowFromSlice(row))
-		t.AppendSeparator()
 	}
 	t.Render()
 }

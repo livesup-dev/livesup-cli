@@ -3,10 +3,12 @@ package services
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/livesup-dev/livesup-cli/internal/api/models"
 	"github.com/livesup-dev/livesup-cli/internal/config"
@@ -33,23 +35,34 @@ var (
 )
 
 func init() {
-	Client = &http.Client{}
+	Client = &http.Client{
+		Timeout: 5 * time.Second,
+	}
 }
 
-func doGet(apiResponse ApiResponse, path string) ApiResponse {
+func doGet(apiResponse ApiResponse, path string) (ApiResponse, error) {
 	req := newRequest(http.MethodGet, path)
 
 	resp, err := Client.Do(req)
 
 	panicOnError(err)
 
+	if resp.StatusCode == http.StatusInternalServerError {
+		return nil, errors.New("internal server error")
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		b, _ := ioutil.ReadAll(resp.Body)
+		return nil, fmt.Errorf("fail to perform the request: %s", string(b))
+	}
+
 	buildResponse(resp.Body, &apiResponse)
 
-	return apiResponse
+	return apiResponse, nil
 }
 
 // TODO: can't we use generics to deal with the "target" param?
-func doUpdate(body *map[string]models.Model, target interface{}, id string, path string) *interface{} {
+func doUpdate(body *map[string]models.Model, target interface{}, id string, path string) (*interface{}, error) {
 	path = buildApiPathWithId(path, id)
 	req := newRequestWithBody(http.MethodPut, buildApiPath(path), body)
 
@@ -57,21 +70,39 @@ func doUpdate(body *map[string]models.Model, target interface{}, id string, path
 
 	panicOnError(err)
 
+	// TODO: Create a function to handle the http respose
+	if resp.StatusCode == http.StatusInternalServerError {
+		return nil, errors.New("internal server error")
+	}
+	if resp.StatusCode != http.StatusOK {
+		b, _ := ioutil.ReadAll(resp.Body)
+		return nil, fmt.Errorf("fail to perform the request: %s", string(b))
+	}
+
 	buildResponse(resp.Body, &target)
 
-	return &target
+	return &target, nil
 }
 
-func doPost(body *map[string]models.Model, target interface{}, path string) *interface{} {
+func doPost(body *map[string]models.Model, target interface{}, path string) (*interface{}, error) {
 	req := newRequestWithBody(http.MethodPost, buildApiPath(path), body)
 
 	resp, err := Client.Do(req)
 
 	panicOnError(err)
 
+	if resp.StatusCode == http.StatusInternalServerError {
+		return nil, errors.New("internal server error")
+	}
+
+	if resp.StatusCode != http.StatusCreated {
+		b, _ := ioutil.ReadAll(resp.Body)
+		return nil, fmt.Errorf("fail to perform the request: %s", string(b))
+	}
+
 	buildResponse(resp.Body, &target)
 
-	return &target
+	return &target, nil
 }
 
 func panicOnError(err error) {

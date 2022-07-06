@@ -31,7 +31,13 @@ func (userSingle *UserSingle) GetModel() models.Model {
 }
 
 func (*userService) All() (*UserList, error) {
-	return doGet(&UserList{}, usersPath).(*UserList), nil
+	usersList, err := doGet(&UserList{}, usersPath)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return usersList.(*UserList), err
 }
 
 func (*userService) Update(user *models.User) (*models.User, error) {

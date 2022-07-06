@@ -24,7 +24,12 @@ func NewTeamService() TeamService {
 }
 
 func (*teamService) All() (*TeamList, error) {
-	return doGet(&TeamList{}, teamsPath).(*TeamList), nil
+	teamList, err := doGet(&TeamList{}, teamsPath)
+
+	if err != nil {
+		return nil, err
+	}
+	return teamList.(*TeamList), err
 }
 
 type TeamSingle struct {
@@ -48,7 +53,11 @@ func (*teamService) Create(team *models.Team) (*models.Team, error) {
 	body := make(map[string]models.Model)
 	body["team"] = team
 
-	doPost(&body, &TeamSingle{}, teamsPath)
+	newTeam, err := doPost(&body, &TeamSingle{}, teamsPath)
 
-	return team, nil
+	if err != nil {
+		return nil, err
+	}
+
+	return (*newTeam).(*TeamSingle).Team, err
 }
